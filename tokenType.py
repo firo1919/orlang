@@ -34,7 +34,7 @@ class TokenType(Enum):
     KUTAA = auto()
     KANBIROO = auto()
     SOBA = auto()
-    HOOJJAA = auto()
+    HOJJAA = auto()
     HAMA = auto()
     YOO = auto()
     DUWWAA = auto()
