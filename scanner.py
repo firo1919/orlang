@@ -37,13 +37,10 @@ class Scanner:
     def advance(self) -> str:
         self.__current += 1
         return self.__source[self.__current - 1]
-    
-    def addToken(self, type: TokenType) -> None:
-        self.addToken(type,None)
         
     def addToken(self, type: TokenType, literal: object = None) -> None:
         text: str = self.__source[self.__start:self.__current]
-        self.__tokens.append(Token(type, text, literal, self.__line))
+        self.__tokens.append(Token(type, text, self.__line, literal))
       
     def scanToken(self) -> None:
         c: str = self.advance()
@@ -107,13 +104,13 @@ class Scanner:
         self.addToken(type)
         
     def number(self) -> None:
-        while self.isDigit(self.peek()):
+        while self.peek().isdigit():
             self.advance()
         # Look for a fractional part.
-        if self.peek() == '.' and self.isDigit(self.peekNext()):
+        if self.peek() == '.' and self.peekNext().isdigit():
             # Consume the "."
             self.advance()
-            while self.isDigit(self.peek()):
+            while self.peek().isdigit():
                 self.advance()
         self.addToken(TokenType.NUMBER, float(self.__source[self.__start:self.__current]))
     
@@ -154,5 +151,5 @@ class Scanner:
         while not self.isAtEnd():
             self.__start = self.__current
             self.scanToken()
-        self.__tokens.append(Token(TokenType.DHUMA, "", None, self.__line))
+        self.__tokens.append(Token(TokenType.DHUMA, "", self.__line, None))
         return self.__tokens

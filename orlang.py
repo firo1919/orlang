@@ -1,25 +1,32 @@
 import sys
 from typing import List
 from scanner import Scanner
+from parser import Parser
+from astprinter import AstPrinter
 
 class Orlang:
     # error handling
     hadError = False
 
     @staticmethod
-    def __report(line: int, where: str, message: str) -> None:
+    def report(line: int, where: str, message: str) -> None:
         print(f"[line {line}] Error{where}: {message}", file=sys.stderr)
 
     @staticmethod
     def error(line: int, message: str) -> None:
-        Orlang.__report(line, "", message)
+        Orlang.report(line, "", message)
 
     @staticmethod
     def run(source: str) -> None:
         scanner = Scanner(source)
         tokens = scanner.scanTokens()
-        for token in tokens:
-            print(token)
+        parser = Parser(tokens)
+        expression = parser.parse()
+
+        if Orlang.hadError:
+            return
+
+        print(AstPrinter().print(expression))
 
     @staticmethod
     def runFile(path: str) -> None:
