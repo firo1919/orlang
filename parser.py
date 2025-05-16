@@ -2,6 +2,7 @@ from typing import List
 from tokenType import TokenType
 from orlang_token import Token
 from expression import *
+from typing import Optional
 
 class Parser:
     class ParseError(RuntimeError):
@@ -11,8 +12,8 @@ class Parser:
     def __init__(self, tokens: List[Token]) -> None:
         self.current = 0
         self.tokens = tokens
-        
-    def parse(self):
+
+    def parse(self) -> Optional[Expression]:
         try:
             return self.expression()
         except Parser.ParseError:

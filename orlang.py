@@ -1,12 +1,13 @@
 import sys
-from typing import List
 from scanner import Scanner
 from parser import Parser
-from astprinter import AstPrinter
+from interpreter import Interpreter
 
 class Orlang:
     # error handling
     hadError = False
+    hadRuntimeError = False
+    interpreter = Interpreter()
 
     @staticmethod
     def report(line: int, where: str, message: str) -> None:
@@ -15,6 +16,11 @@ class Orlang:
     @staticmethod
     def error(line: int, message: str) -> None:
         Orlang.report(line, "", message)
+
+    @staticmethod
+    def runtimeError(error) -> None:
+        print(f"{error}\n[line {error.token.line}]", file=sys.stderr)
+        Orlang.hadRuntimeError = True
 
     @staticmethod
     def run(source: str) -> None:
@@ -26,7 +32,8 @@ class Orlang:
         if Orlang.hadError:
             return
 
-        print(AstPrinter().print(expression))
+        if expression is not None:
+            Orlang.interpreter.interpret(expression)
 
     @staticmethod
     def runFile(path: str) -> None:
@@ -34,19 +41,24 @@ class Orlang:
         Orlang.run(code)
         if Orlang.hadError:
             sys.exit(65)
+        if Orlang.hadRuntimeError:
+            sys.exit(70)
 
     @staticmethod
     def runPrompt() -> None:
         while True:
-            line = input("> ")
-            if not line:
+            try:
+                line = input("> ")
+                if not line:
+                    break
+                Orlang.run(line)
+                Orlang.hadError = False
+            except EOFError:
                 break
-            Orlang.run(line)
-            Orlang.hadError = False
 
     @staticmethod
     def entry() -> None:
-        print("orlang ",end="")
+        print("orlang ", end="")
         arguments = sys.argv[1:]
         if len(arguments) > 1:
             print("Usage: orlang [script]")
