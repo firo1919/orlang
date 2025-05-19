@@ -1,4 +1,7 @@
-__pycache__
-tests
-.venv
-out
+*.egg-info/
+*.egg
+dist/
+build/
+__pycache__/
+*.py[cod]
+.venv/

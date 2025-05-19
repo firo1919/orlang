@@ -1,0 +1,19 @@
+bakka a = "global a";
+bakka b = "global b";
+bakka c = "global c";
+{
+  bakka a = "outer a";
+  bakka b = "outer b";
+  {
+    bakka a = "inner a";
+    barreessi a;
+    barreessi b;
+    barreessi c;
+  }
+  barreessi a;
+  barreessi b;
+  barreessi c;
+}
+barreessi a;
+barreessi b;
+barreessi c;
