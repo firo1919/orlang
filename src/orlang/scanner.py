@@ -1,27 +1,26 @@
-from typing import List
-from orlang_token import Token
-from tokenType import TokenType
-from typing import Dict
+from typing import List, Dict
+from .token import Token
+from .token_type import TokenType
 
 class Scanner:
     
     KEYWORDS: Dict[str, TokenType] = {
-        "fi":       TokenType.FI,
-        "kutaa":     TokenType.KUTAA,
-        "kanbiroo":      TokenType.KANBIROO,
-        "soba":     TokenType.SOBA,
-        "hama":       TokenType.HAMA,
-        "hojjaa":       TokenType.HOJJAA,
-        "yoo":        TokenType.YOO,
-        "duwwaa":       TokenType.DUWWAA,
-        "ykn":        TokenType.YKN,
-        "barreessi":     TokenType.BARREESSI,
-        "deebihi":    TokenType.DEEBIHI,
-        "olaanoo":     TokenType.OLAANOO,
-        "kana":      TokenType.KANA,
-        "dhugaa":      TokenType.DHUGAA,
-        "bakkabutee":       TokenType.BAKKABUTEE,
-        "yeroo":     TokenType.YEROO,
+        "fi":       TokenType.AND,
+        "kutaa":     TokenType.CLASS,
+        "kanbiroo":      TokenType.ELSE,
+        "soba":     TokenType.FALSE,
+        "hama":       TokenType.FOR,
+        "hojjaa":       TokenType.FUNCTION,
+        "yoo":        TokenType.IF,
+        "duwwaa":       TokenType.NULL,
+        "ykn":        TokenType.OR,
+        "barreessi":     TokenType.PRINT,
+        "deebihi":    TokenType.RETURN,
+        "olaanoo":     TokenType.SUPER,
+        "kana":      TokenType.THIS,
+        "dhugaa":      TokenType.TRUE,
+        "bakka":       TokenType.VARIABLE,
+        "yeroo":     TokenType.WHILE,
     }
     
     def __init__(self, source: str) -> None:

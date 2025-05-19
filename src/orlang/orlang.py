@@ -1,7 +1,7 @@
 import sys
-from scanner import Scanner
-from parser import Parser
-from interpreter import Interpreter
+from .scanner import Scanner
+from .parser import Parser
+from .interpreter import Interpreter
 
 class Orlang:
     # error handling
@@ -27,13 +27,12 @@ class Orlang:
         scanner = Scanner(source)
         tokens = scanner.scanTokens()
         parser = Parser(tokens)
-        expression = parser.parse()
+        statements = parser.parse()
 
         if Orlang.hadError:
             return
 
-        if expression is not None:
-            Orlang.interpreter.interpret(expression)
+        Orlang.interpreter.interpret(statements)
 
     @staticmethod
     def runFile(path: str) -> None:
@@ -58,7 +57,7 @@ class Orlang:
 
     @staticmethod
     def entry() -> None:
-        print("orlang ", end="")
+        # print("orlang ", end="")
         arguments = sys.argv[1:]
         if len(arguments) > 1:
             print("Usage: orlang [script]")
@@ -68,5 +67,8 @@ class Orlang:
         else:
             Orlang.runPrompt()
 
-if __name__ == "__main__":
+def main() -> None:
     Orlang.entry()
+
+if __name__ == "__main__":
+    main()

@@ -1,4 +1,4 @@
-from tokenType import TokenType
+from .token_type import TokenType
 
 class Token:
 
@@ -10,4 +10,4 @@ class Token:
     
     def __str__(self) -> str:
         return f"{self.type} {self.lexeme} {self.literal} {self.line}"
-        
+         # type: ignore

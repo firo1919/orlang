@@ -1,13 +1,19 @@
-from expression import *
-from tokenType import TokenType
-from orlang_token import Token
+from .expression import Binary, Grouping, Literal, Unary, Expression, Variable
+from .token_type import TokenType
+from .token import Token
+from .expression import Visitor as ExpressionVisitor
+from .statement import Visitor as StatementVisitor
+from .statement import ExpressionStatement, Block, Statement, Print, Var
+from .environment import Environment
+from typing import List
 
 
-class Interpreter(Visitor[object]):
-    def interpret(self, expression: Expression):
+class Interpreter(ExpressionVisitor[object], StatementVisitor[None]):
+    environment = Environment()
+    def interpret(self, statements: List[Statement]) -> None:
         try:
-            value = self.evaluate(expression)
-            print(self.stringify(value))
+            for statement in statements:
+                self.execute(statement)
         except RuntimeError as error:
             from orlang import Orlang
             Orlang.runtimeError(error)
@@ -66,7 +72,6 @@ class Interpreter(Visitor[object]):
         elif operator_type == TokenType.EQUAL_EQUAL:
             return self.isEqual(left, right)
 
-        # Unreachable
         return None
 
     def visitGroupingExpression(self, expression: Grouping) -> object:
@@ -87,9 +92,51 @@ class Interpreter(Visitor[object]):
             raise TypeError(f"Unsupported operand type for unary minus: {type(right).__name__}")
 
         return None
+    
+    def visitExpressionStatementStatement(self, statement: ExpressionStatement) -> None:
+        self.evaluate(statement.expression)
+        return None
+    
+    def visitPrintStatement(self, statement: Print) -> None:
+        value = self.evaluate(statement.expression)
+        print(self.stringify(value))
+        return None
+    
+    def visitVarStatement(self, statement: Var) -> None:
+        value = None
+        if statement.initializer is not None:
+            value = self.evaluate(statement.initializer)
 
-    def evaluate(self, expr: Expression) -> object:
-        return expr.accept(self)
+        self.environment.define(statement.name.lexeme, value)
+        return None
+    
+    def visitAssignExpression(self, expression) -> object:
+        value = self.evaluate(expression.value)
+        self.environment.assign(expression.name, value)
+        return value
+    
+    def visitVariableExpression(self, expression: Variable) -> object:
+        return self.environment.get(expression.name)
+
+    def execute(self, statement: Statement) -> None:
+        statement.accept(self)
+        
+    def visitBlockStatement(self, statement: Block) -> None:
+        self.executeBlock(statement.statements, Environment(self.environment))
+        return None
+
+    def executeBlock(self, statements: List[Statement], environment: Environment) -> None:
+        previous = self.environment
+        try:
+            self.environment = environment
+
+            for statement in statements:
+                self.execute(statement)
+        finally:
+            self.environment = previous
+                    
+    def evaluate(self, expression: Expression) -> object:
+        return expression.accept(self)
 
     def isTruthy(self, obj: object) -> bool:
         if obj is None:
@@ -117,8 +164,9 @@ class Interpreter(Visitor[object]):
 
     def stringify(self, obj: object) -> str:
         if obj is None:
-            return "nil"
-
+            return "duwwaa"
+        if isinstance(obj, bool):
+            return "dhugaa" if obj else "soba"
         if isinstance(obj, float):
             text = str(obj)
             if text.endswith(".0"):
@@ -126,3 +174,5 @@ class Interpreter(Visitor[object]):
             return text
 
         return str(obj)
+    
+    
