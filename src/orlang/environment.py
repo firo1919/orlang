@@ -1,4 +1,6 @@
+from .runtime_error import RuntimeError
 from .token import Token
+
 
 class Environment:
 
@@ -12,9 +14,8 @@ class Environment:
         
         if self.enclosing is not None:
             return self.enclosing.get(name)
-        
-        raise RuntimeError(name,
-            "Undefined variable '" + name.lexeme + "'.")
+
+        raise RuntimeError(name, f"Undefined variable '{name.lexeme}'.")
         
     def assign(self, name: Token, value: object) -> None:
         if name.lexeme in self.values:

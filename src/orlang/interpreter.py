@@ -3,7 +3,7 @@ from .token_type import TokenType
 from .token import Token
 from .expression import Visitor as ExpressionVisitor
 from .statement import Visitor as StatementVisitor
-from .statement import ExpressionStatement, Block, Statement, Print, Var
+from .statement import ExpressionStatement, Block, Statement, Print, Var, If, While
 from .environment import Environment
 from typing import List
 
@@ -15,7 +15,7 @@ class Interpreter(ExpressionVisitor[object], StatementVisitor[None]):
             for statement in statements:
                 self.execute(statement)
         except RuntimeError as error:
-            from orlang import Orlang
+            from .orlang import Orlang
             Orlang.runtimeError(error)
 
     def visitBinaryExpression(self, expression: Binary) -> object:
@@ -125,6 +125,31 @@ class Interpreter(ExpressionVisitor[object], StatementVisitor[None]):
         self.executeBlock(statement.statements, Environment(self.environment))
         return None
 
+    def visitIfStatement(self, statement: If) -> None:
+        if self.isTruthy(self.evaluate(statement.condition)):
+            self.execute(statement.thenBranch)
+        elif statement.elseBranch is not None:
+            self.execute(statement.elseBranch)
+        return None
+    
+    def visitLogicalExpression(self, expression):
+        left = self.evaluate(expression.left)
+
+        if expression.operator.type == TokenType.OR:
+            if self.isTruthy(left):
+                return left
+        else:
+            if self.isTruthy(left):
+                return left
+
+        return self.evaluate(expression.right)
+    
+    def visitWhileStatement(self, statement: While) -> None:
+        while self.isTruthy(self.evaluate(statement.condition)):
+            self.execute(statement.body)
+            
+        return None
+     
     def executeBlock(self, statements: List[Statement], environment: Environment) -> None:
         previous = self.environment
         try:

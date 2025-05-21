@@ -1,7 +1,16 @@
 from typing import List
 
-from .expression import Assign, Binary, Expression, Grouping, Literal, Unary, Variable
-from .statement import ExpressionStatement, Print, Statement, Var, Block
+from .expression import (
+    Assign,
+    Binary,
+    Expression,
+    Grouping,
+    Literal,
+    Logical,
+    Unary,
+    Variable,
+)
+from .statement import Block, ExpressionStatement, If, Print, Statement, Var, While
 from .token import Token
 from .token_type import TokenType
 
@@ -22,7 +31,7 @@ class Parser:
 
         return statements
 
-    def declaration(self) -> Statement:
+    def declaration(self) -> Statement | None:
         try:
             if self.match(TokenType.VARIABLE):
                 return self.varDeclaration()
@@ -32,24 +41,80 @@ class Parser:
             self.synchronize()
             return ExpressionStatement(Literal(None))
 
-    def varDeclaration(self) -> Statement:
+    def varDeclaration(self) -> Statement | None:
         name = self.consume(TokenType.IDENTIFIER, "Expect variable name.")
-
         initializer = None
         if self.match(TokenType.EQUAL):
             initializer = self.expression()
-
         self.consume(TokenType.SEMICOLON, "Expect ';' after variable declaration.")
-        return Var(name, initializer)
+        return Var(name, initializer if initializer is not None else Literal(None))
 
-    def statement(self) -> Statement:
+    def statement(self) -> Statement | None:
+        if self.match(TokenType.FOR):
+            return self.forStatement()
+
+        if self.match(TokenType.IF):
+            return self.ifStatement()
+
         if self.match(TokenType.PRINT):
             return self.printStatement()
-        
+
+        if self.match(TokenType.WHILE):
+            return self.whileStatement()
+
         if self.match(TokenType.LEFT_BRACE):
             return Block(self.block())
 
         return self.expressionStatement()
+
+    def forStatement(self) -> Statement:
+        # consume the '(' after 'for'
+        self.consume(TokenType.LEFT_PAREN, "Expect '(' after 'for'.")
+        # --- initializer ---
+        if self.match(TokenType.SEMICOLON):
+            initializer = None
+        elif self.match(TokenType.VARIABLE):
+            initializer = self.varDeclaration()
+        else:
+            initializer = self.expressionStatement()
+        # --- condition ---
+        condition = None
+        if not self.check(TokenType.SEMICOLON):
+            condition = self.expression()
+        else:
+            # no condition → infinite loop
+            condition = Literal(True)
+        self.consume(TokenType.SEMICOLON, "Expect ';' after loop condition.")
+        # --- increment ---
+        increment = None
+        if not self.check(TokenType.RIGHT_PAREN):
+            increment = self.expression()
+        self.consume(TokenType.RIGHT_PAREN, "Expect ')' after for clauses.")
+        # --- body ---
+        body = self.statement()
+        if body is None:
+            raise Exception("Body of the 'for' statement cannot be None.")
+        # run body first, then increment
+        if increment is not None:
+            body = Block([body, ExpressionStatement(increment)])
+        # wrap in a while
+        body = While(condition, body)
+        # initializer before the loop
+        if initializer is not None:
+            body = Block([initializer, body])
+        return body
+
+    def ifStatement(self) -> Statement | None:
+        self.consume(TokenType.LEFT_PAREN, "Expect '(' after 'if'.")
+        condition = self.expression()
+        self.consume(TokenType.RIGHT_PAREN, "Expect ')' after if condition.")
+        if self.match(TokenType.ELSE):
+            thenBranch = self.statement()
+            elseBranch = self.statement()
+            if thenBranch and elseBranch:
+                return If(condition, thenBranch, elseBranch)
+
+        return None
 
     def printStatement(self) -> Statement:
         value = self.expression()
@@ -60,7 +125,19 @@ class Parser:
         value = self.expression()
         self.consume(TokenType.SEMICOLON, "Expect ';' after value.")
         return ExpressionStatement(value)
-    
+
+    def whileStatement(self) -> Statement | None:
+        self.consume(TokenType.LEFT_PAREN, "Expect '(' after 'while'.")
+        condition = self.expression()
+
+        self.consume(TokenType.RIGHT_PAREN, "Expect ')' after condition.")
+        body = self.statement()
+
+        if body and condition:
+            return While(condition, body)
+
+        return None
+
     def block(self) -> List[Statement]:
         statements = []
 
@@ -74,19 +151,39 @@ class Parser:
         return self.assignment()
 
     def assignment(self) -> Expression:
-        expression = self.equality()
-
+        expr = self._or()
         if self.match(TokenType.EQUAL):
             equals = self.previous()
             value = self.assignment()
 
-            if expression is Variable:
-                name = Variable(expression).name
+            # FIX: use isinstance, and pull the name off the expr
+            if isinstance(expr, Variable):
+                name = expr.name
                 return Assign(name, value)
 
             self.error(equals, "Invalid assignment target.")
 
-        return expression
+        return expr
+
+    def _or(self) -> Expression:
+        expr = self._and()
+
+        while self.match(TokenType.OR):
+            operator = self.previous()
+            right = self._and()
+            expr = Logical(expr, operator, right)
+
+        return expr
+
+    def _and(self) -> Expression:
+        expr = self.equality()
+
+        while self.match(TokenType.AND):
+            operator = self.previous()
+            right = self.equality()
+            expr = Logical(expr, operator, right)
+
+        return expr
 
     def equality(self) -> Expression:
         expression = self.comparison()
@@ -190,7 +287,7 @@ class Parser:
     
     @staticmethod
     def parseerror(token: Token, message: str):
-        from orlang import Orlang
+        from .orlang import Orlang
         if (token.type == TokenType.DHUMA):
             Orlang.report(token.line, " at end", message)
         else:

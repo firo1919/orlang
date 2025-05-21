@@ -29,7 +29,7 @@ def defineAst(outputDir: str, baseName: str, types: List[str]):
     with open(path, "w") as f:
         f.write("from abc import ABC, abstractmethod\n")
         f.write("from .token import Token\n")
-        f.write("from typing import TypeVar, Generic\n\n")
+        f.write("from typing import TypeVar, Generic, List\n\n")
         f.write(f"class {baseName.capitalize()}(ABC):\n")
         f.write("   @abstractmethod\n")
         f.write("   def accept(self, visitor: 'Visitor') -> object:\n")
@@ -58,6 +58,7 @@ defineAst(outputDir, "expression", [
     "Binary   | left: Expression, operator: Token, right: Expression",
     "Grouping | expression: Expression",
     "Literal  | value: object",
+    "Logical  | left: Expression, operator: Token, right: Expression",
     "Unary    | operator: Token, right: Expression",
     "Variable | name: Token"
 ])
@@ -65,6 +66,8 @@ defineAst(outputDir, "expression", [
 defineAst(outputDir, "statement", [
     "Block      | statements: List[Statement]",
     "ExpressionStatement | expression: Expression",
+    "If         | condition: Expression, thenBranch: Statement, elseBranch: Statement",
     "Print      | expression: Expression",
-    "Var        | name: Token, initializer: Expression"
+    "Var        | name: Token, initializer: Expression",
+    "While      | condition: Expression, body: Statement"
 ])

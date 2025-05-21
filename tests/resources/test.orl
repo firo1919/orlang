@@ -1,19 +1,10 @@
-bakka a = "global a";
-bakka b = "global b";
-bakka c = "global c";
-{
-  bakka a = "outer a";
-  bakka b = "outer b";
-  {
-    bakka a = "inner a";
-    barreessi a;
+bakka a = 0;
+bakka b = 1;
+
+// fibonacci sequence
+yeroo(b < 100){
+    bakka temp = a + b;
+    a = b;
+    b = temp;
     barreessi b;
-    barreessi c;
-  }
-  barreessi a;
-  barreessi b;
-  barreessi c;
 }
-barreessi a;
-barreessi b;
-barreessi c;

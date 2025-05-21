@@ -90,7 +90,7 @@ class Scanner:
             elif c.isalpha():
                 self.identifier()
             else:
-                from orlang import Orlang
+                from .orlang import Orlang
                 Orlang.error(self.__line, "Unexpected character.")
                 
     def identifier(self) -> None:
@@ -124,7 +124,7 @@ class Scanner:
                 self.__line += 1
             self.advance()
         if self.isAtEnd():
-            from orlang import Orlang
+            from .orlang import Orlang
             Orlang.error(self.__line, "Unterminated string.")
             return
         # The closing ".

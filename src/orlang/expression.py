@@ -34,6 +34,14 @@ class Literal(Expression):
    def accept(self, visitor: 'Visitor') -> object:
        return visitor.visitLiteralExpression(self)
 
+class Logical(Expression):
+   def __init__(self, left: Expression, operator: Token, right: Expression) -> None:
+       self.left = left
+       self.operator = operator
+       self.right = right
+   def accept(self, visitor: 'Visitor') -> object:
+       return visitor.visitLogicalExpression(self)
+
 class Unary(Expression):
    def __init__(self, operator: Token, right: Expression) -> None:
        self.operator = operator
@@ -61,6 +69,9 @@ class Visitor(ABC, Generic[R]):
         pass
     @abstractmethod
     def visitLiteralExpression(self, expression: Literal) -> R:
+        pass
+    @abstractmethod
+    def visitLogicalExpression(self, expression: Logical) -> R:
         pass
     @abstractmethod
     def visitUnaryExpression(self, expression: Unary) -> R:
