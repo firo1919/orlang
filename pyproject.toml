@@ -1,6 +1,6 @@
 [project]
 name = "orlang"
-version = "0.1.0"
+version = "0.1.1"
 description = "A simple, expressive programming language that transpiles to Python"
 readme = "README.md"
 requires-python = ">=3.13"
@@ -25,6 +25,10 @@ orlang = "orlang.cli:main"
 
 [tool.setuptools]
 packages = ["orlang"]
+include-package-data = true
+
+[tool.setuptools.package-data]
+orlang = ["grammar.lark"]
 
 [build-system]
 requires = ["setuptools>=61.0"]
