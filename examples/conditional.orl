@@ -1,0 +1,7 @@
+bakka age = 20;
+
+yoo (age >= 18) {
+    barreessi "You are an adult.";
+} kanbiroo {
+    barreessi "You are a minor.";
+}
