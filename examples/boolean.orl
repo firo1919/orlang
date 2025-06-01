@@ -1,0 +1,8 @@
+bakka passed = dhugaa;
+bakka hasPermission = soba;
+
+yoo (passed fi hasPermission) {
+    barreessi "Access granted.";
+} kanbiroo {
+    barreessi "Access denied.";
+}

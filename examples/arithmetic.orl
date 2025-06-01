@@ -1,0 +1,10 @@
+bakka a = 10;
+bakka b = 5;
+bakka sum = a + b;
+bakka product = a * b;
+
+barreessi "Sum: ";
+barreessi sum;
+
+barreessi "Product: ";
+barreessi product;

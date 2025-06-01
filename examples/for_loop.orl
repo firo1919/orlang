@@ -1,0 +1,4 @@
+// this is comment
+hama (bakka i = 0; i < 5; i = i + 1) {
+    barreessi i;
+}

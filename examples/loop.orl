@@ -1,0 +1,12 @@
+// Example of a while loop
+bakka count = 0;
+yeroo (count < 5) {
+    barreessi count;
+    count = count + 1;
+}
+
+// Example of a for loop
+hama (bakka i = 0; i < 3; i = i + 1) {
+    barreessi "For loop iteration:";
+    barreessi i;
+}
